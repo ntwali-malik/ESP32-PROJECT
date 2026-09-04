@@ -1,7 +1,16 @@
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 
-test('renders the sensor dashboard', () => {
-  render(<App />);
+import App from "./App";
+
+test("renders the sensor dashboard", () => {
+  render(
+    <MemoryRouter
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
+      <App />
+    </MemoryRouter>
+  );
+
   expect(screen.getByText(/sensor overview/i)).toBeInTheDocument();
 });

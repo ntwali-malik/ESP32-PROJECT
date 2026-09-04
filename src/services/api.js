@@ -60,6 +60,11 @@ export const getCube = async (qrToken) => {
   return response.data;
 };
 
+export const getCompressionTests = async (qrToken) => {
+  const response = await api.get(`/api/cubes/${qrToken}/compression-tests`);
+  return response.data;
+};
+
 export const uploadCompressionTest = async (qrToken, test) => {
   const formData = new FormData();
   formData.append("test_date", test.test_date);

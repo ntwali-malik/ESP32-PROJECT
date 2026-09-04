@@ -1,109 +1,45 @@
-import {
-  Wifi,
-  Server,
-  Database,
-} from "lucide-react";
+import { Database, Server, Wifi } from "lucide-react";
 
-function StatusCard({
-  online,
-  lastUpdate,
-}) {
+function StatusCard({ online, lastUpdate }) {
   return (
-    <div className="status-card">
-
+    <article className="status-card">
       <div className="status-top">
-
         <div>
-
-          <p className="sensor-label">
-            System Status
-          </p>
-
+          <p className="sensor-label">System status</p>
           <div className="status-title">
-
-            <span
-              className={`status-dot ${
-                online
-                  ? "online"
-                  : "offline"
-              }`}
-            />
-
-            <span>
-              {online
-                ? "Online"
-                : "Offline"}
-            </span>
-
+            <span className={`status-dot ${online ? "online" : "offline"}`} />
+            <span>{online ? "Online" : "Offline"}</span>
           </div>
-
         </div>
-
-        <div
-          className={`status-icon ${
-            online
-              ? "status-online"
-              : "status-offline"
-          }`}
-        >
-          <Wifi size={26} />
+        <div className={`status-icon ${online ? "status-online" : "status-offline"}`}>
+          <Wifi size={24} />
         </div>
-
       </div>
 
       <div className="status-services">
-
         <div className="service">
-
-          <Server size={19} />
-
+          <Server size={18} />
           <div>
-            <span>
-              API Server
-            </span>
-
-            <strong>
-              {online
-                ? "Connected"
-                : "Disconnected"}
-            </strong>
+            <span>API server</span>
+            <strong>{online ? "Connected" : "Disconnected"}</strong>
           </div>
-
         </div>
-
         <div className="service">
-
-          <Database size={19} />
-
+          <Database size={18} />
           <div>
-            <span>
-              Database
-            </span>
-
-            <strong>
-              {online
-                ? "Connected"
-                : "Disconnected"}
-            </strong>
+            <span>Database</span>
+            <strong>{online ? "Connected" : "Disconnected"}</strong>
           </div>
-
         </div>
-
       </div>
 
       <div className="sensor-card-footer">
-
-        <span>
-          Last sensor reading
-        </span>
-
-        <strong>
-          {lastUpdate}
-        </strong>
-
+        <div>
+          <span>Last sensor reading</span>
+          <strong>{lastUpdate}</strong>
+        </div>
       </div>
-
-    </div>
+    </article>
   );
 }
 
