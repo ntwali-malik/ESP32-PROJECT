@@ -451,6 +451,232 @@
   margin-bottom: 18px;
 }
 
+.cube-section {
+  padding-top: 8px;
+}
+
+.cube-workspace,
+.test-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 20px;
+}
+
+.cube-form,
+.cube-list,
+.qr-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 22px;
+}
+
+.form-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 20px;
+  color: #0f172a;
+}
+
+.form-title h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.cube-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 15px;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cube-form input {
+  width: 100%;
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #0f172a;
+  background: #ffffff;
+}
+
+.cube-form input:focus {
+  outline: 2px solid #bfdbfe;
+  border-color: #2563eb;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.primary-button,
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 9px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary-button {
+  width: 100%;
+  border: 1px solid #1d4ed8;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.primary-button:hover {
+  background: #1d4ed8;
+}
+
+.primary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.secondary-button {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+}
+
+.secondary-button:hover {
+  background: #f8fafc;
+}
+
+.count-badge {
+  margin-left: auto;
+  min-width: 24px;
+  padding: 4px 7px;
+  border-radius: 12px;
+  background: #eff6ff;
+  color: #2563eb;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.cube-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border: 0;
+  border-top: 1px solid #f1f5f9;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cube-row:hover,
+.cube-row.selected {
+  color: #2563eb;
+}
+
+.cube-row span:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cube-row strong {
+  font-size: 13px;
+}
+
+.cube-row small,
+.scan-url,
+.selected-label {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.status-pill {
+  padding: 4px 7px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-pill.tested {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.empty-cubes,
+.qr-missing {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.cube-notice {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 14px;
+}
+
+.test-workspace {
+  margin-top: 20px;
+  grid-template-columns: minmax(220px, 0.75fr) minmax(0, 1.25fr);
+}
+
+.qr-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qr-panel .form-title {
+  width: 100%;
+}
+
+.qr-image {
+  width: min(220px, 100%);
+  aspect-ratio: 1;
+  image-rendering: pixelated;
+}
+
+.scan-url {
+  max-width: 100%;
+  margin: 8px 0 14px;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.file-input input {
+  display: none;
+}
+
+.file-input span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px dashed #94a3b8;
+  border-radius: 8px;
+  color: #64748b;
+  font-weight: 500;
+  cursor: pointer;
+}
+
 .section-heading h2 {
   margin: 0;
 
@@ -773,6 +999,11 @@ tbody tr:hover {
       1fr;
   }
 
+  .cube-workspace,
+  .test-workspace {
+    grid-template-columns: 1fr;
+  }
+
   .status-card {
     grid-column:
       auto;
@@ -788,6 +1019,25 @@ tbody tr:hover {
     gap: 8px;
   }
 
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .qr-panel,
+  .qr-panel * {
+    visibility: visible;
+  }
+
+  .qr-panel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    border: 0;
+    box-shadow: none;
+  }
 }
 
 @media (max-width: 450px) {

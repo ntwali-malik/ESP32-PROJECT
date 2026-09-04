@@ -45,4 +45,34 @@ export const checkHealth = async () => {
   return response.data;
 };
 
+export const getCubes = async () => {
+  const response = await api.get("/api/cubes");
+  return response.data;
+};
+
+export const createCube = async (cube) => {
+  const response = await api.post("/api/cubes", cube);
+  return response.data;
+};
+
+export const getCube = async (qrToken) => {
+  const response = await api.get(`/api/cubes/${qrToken}`);
+  return response.data;
+};
+
+export const uploadCompressionTest = async (qrToken, test) => {
+  const formData = new FormData();
+  formData.append("test_date", test.test_date);
+  formData.append("maximum_load_kn", test.maximum_load_kn);
+  formData.append("compressive_strength_mpa", test.compressive_strength_mpa);
+  formData.append("cube_image", test.cube_image);
+
+  const response = await api.post(
+    `/api/cubes/${qrToken}/compression-tests`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+  return response.data;
+};
+
 export default api;
