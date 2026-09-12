@@ -112,6 +112,20 @@ app.post("/api/sensors", async (req, res) => {
 
     try {
 
+        const recordingState = await pool.query(`
+            SELECT active
+            FROM sensor_recording_state
+            WHERE id = 1
+        `);
+
+        if (!recordingState.rows[0]?.active) {
+            return res.status(202).json({
+                success: true,
+                recorded: false,
+                message: "Sensor data ignored because recording is stopped"
+            });
+        }
+
         const {
             distance_cm,
             temperature_c
@@ -204,6 +218,8 @@ app.post("/api/sensors", async (req, res) => {
 // ========================================
 
 app.post("/api/sensors/recording", async (req, res) => {
+    const client = await pool.connect();
+
     try {
         const {
             event,
@@ -212,7 +228,8 @@ app.post("/api/sensors/recording", async (req, res) => {
             temperature_c,
             sensor_recorded_at,
             recorded_at,
-            source = "dashboard"
+            source = "dashboard",
+            readings = []
         } = req.body;
 
         if (!["start", "reading", "stop"].includes(event)) {
@@ -226,6 +243,21 @@ app.post("/api/sensors/recording", async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: "status is required"
+            });
+        }
+
+        if (event === "start" || event === "stop") {
+            await pool.query(`
+                UPDATE sensor_recording_state
+                SET active = $1, updated_at = NOW()
+                WHERE id = 1
+            `, [event === "start"]);
+        }
+
+        if (!Array.isArray(readings)) {
+            return res.status(400).json({
+                success: false,
+                message: "readings must be an array"
             });
         }
 
@@ -246,7 +278,30 @@ app.post("/api/sensors/recording", async (req, res) => {
             });
         }
 
-        const result = await pool.query(`
+        const sessionReadings = event === "stop"
+            ? readings
+            : event === "reading" && distance !== null
+                ? [{ distance_cm: distance, temperature_c: temperature, sensor_recorded_at }]
+                : [];
+
+        const normalizedReadings = sessionReadings.map((reading) => ({
+            distance: Number(reading.distance_cm),
+            temperature: Number(reading.temperature_c),
+            sensorRecordedAt: reading.sensor_recorded_at || null
+        }));
+
+        if (normalizedReadings.some((reading) =>
+            !Number.isFinite(reading.distance) || !Number.isFinite(reading.temperature)
+        )) {
+            return res.status(400).json({
+                success: false,
+                message: "Every captured reading must contain valid sensor values"
+            });
+        }
+
+        await client.query("BEGIN");
+
+        const result = await client.query(`
             INSERT INTO sensor_recordings
             (
                 event,
@@ -259,28 +314,34 @@ app.post("/api/sensors/recording", async (req, res) => {
             )
             VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *
-        `, [
-            event,
-            status,
-            distance,
-            temperature,
-            sensor_recorded_at || null,
-            recorded_at || new Date(),
-            source
-        ]);
+        `, [event, status, distance, temperature, sensor_recorded_at || null, recorded_at || new Date(), source]);
+
+        for (const reading of normalizedReadings) {
+            await client.query(`
+                INSERT INTO sensor_recordings
+                (event, status, distance_cm, temperature_c, sensor_recorded_at, recorded_at, source)
+                VALUES ('reading', 'recording', $1, $2, $3, NOW(), $4)
+            `, [reading.distance, reading.temperature, reading.sensorRecordedAt, source]);
+        }
+
+        await client.query("COMMIT");
 
         res.status(201).json({
             success: true,
             message: "Recording data saved successfully",
-            data: result.rows[0]
+            data: result.rows[0],
+            captured_count: normalizedReadings.length
         });
     } catch (error) {
+        await client.query("ROLLBACK").catch(() => {});
         console.error("Error saving recording data:", error.message);
 
         res.status(500).json({
             success: false,
             message: "Failed to save recording data"
         });
+    } finally {
+        client.release();
     }
 });
 
@@ -464,6 +525,14 @@ async function initializeConcreteCubeTables() {
 
 async function initializeSensorRecordingTable() {
     await pool.query(`
+        CREATE TABLE IF NOT EXISTS sensor_recording_state (
+            id INTEGER PRIMARY KEY CHECK (id = 1),
+            active BOOLEAN NOT NULL DEFAULT FALSE,
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+        INSERT INTO sensor_recording_state (id, active)
+        VALUES (1, FALSE)
+        ON CONFLICT (id) DO NOTHING;
         CREATE TABLE IF NOT EXISTS sensor_recordings (
             id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
             event VARCHAR(20) NOT NULL CHECK (event IN ('start', 'reading', 'stop')),
