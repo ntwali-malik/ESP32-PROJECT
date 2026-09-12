@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   AlertCircle,
   ArrowLeft,
@@ -24,7 +24,6 @@ import {
 
 function CubeDetailPage() {
   const { qrToken } = useParams();
-  const location = useLocation();
   const [cube, setCube] = useState(null);
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +35,7 @@ function CubeDetailPage() {
     test_date: "",
     maximum_load_kn: "",
     compressive_strength_mpa: "",
-    cube_image: location.state?.cubeImage || null,
+    cube_image: null,
   });
 
   const refreshEvidence = async () => {

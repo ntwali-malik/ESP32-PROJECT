@@ -6,7 +6,7 @@ import {
   getSensorReadings,
 } from "../services/api";
 
-function useSensorData(intervalMs = 5000) {
+function useSensorData(intervalMs = 5000, enabled = true) {
   const [latest, setLatest] = useState(null);
   const [readings, setReadings] = useState([]);
   const [online, setOnline] = useState(false);
@@ -50,13 +50,13 @@ function useSensorData(intervalMs = 5000) {
 
   useEffect(() => {
     loadDashboard();
-    if (!intervalMs) {
+    if (!enabled || !intervalMs) {
       return undefined;
     }
 
     const interval = setInterval(loadDashboard, intervalMs);
     return () => clearInterval(interval);
-  }, [loadDashboard, intervalMs]);
+  }, [enabled, loadDashboard, intervalMs]);
 
   return {
     latest,

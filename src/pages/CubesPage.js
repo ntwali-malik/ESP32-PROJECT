@@ -2,22 +2,21 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertCircle, Box, CheckCircle2, Image as ImageIcon } from "lucide-react";
 
-import ImageCapture from "../components/ImageCapture";
 import PageHeader from "../components/PageHeader";
 import { createCube, getCubes } from "../services/api";
-import { getTestImageUrl, loadCompressionTests } from "../utils/cubes";
+import { getTestImageUrl, loadCompressionTests, nextCubeNumber } from "../utils/cubes";
 
 function CubesPage() {
   const navigate = useNavigate();
   const [cubes, setCubes] = useState([]);
   const [cubeForm, setCubeForm] = useState({
-    cube_number: "",
+    cube_number: "CUBE-001",
     concrete_grade: "",
     casting_date: "",
     test_age_days: 28,
-    cube_image: null,
   });
   const [loading, setLoading] = useState(false);
+  const [cubesReady, setCubesReady] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -40,8 +39,14 @@ function CubesPage() {
         })
       );
       setCubes(cubesWithImages);
+      setCubeForm((current) => ({
+        ...current,
+        cube_number: nextCubeNumber(cubesWithImages),
+      }));
     } catch (err) {
       setError(err.response?.data?.message || "Unable to load concrete cubes.");
+    } finally {
+      setCubesReady(true);
     }
   };
 
@@ -56,21 +61,24 @@ function CubesPage() {
     setMessage("");
 
     try {
-      const response = await createCube(cubeForm);
-      setCubes((current) => [response.data, ...current]);
-      const capturedImage = cubeForm.cube_image;
+      const response = await createCube({
+        ...cubeForm,
+        cube_number: cubeForm.cube_number || nextCubeNumber(cubes),
+      });
+      const created = response.data;
+      const updatedCubes = created
+        ? [{ ...created, latest_image: "", test_count: 0 }, ...cubes]
+        : cubes;
+      setCubes(updatedCubes);
       setCubeForm({
-        cube_number: "",
+        cube_number: nextCubeNumber(updatedCubes),
         concrete_grade: "",
         casting_date: "",
         test_age_days: 28,
-        cube_image: null,
       });
       setMessage("Cube registered. Open it to print the QR label.");
       if (response.data?.qr_token) {
-        navigate(`/cubes/${response.data.qr_token}`, {
-          state: { cubeImage: capturedImage || null },
-        });
+        navigate(`/cubes/${response.data.qr_token}`);
       }
     } catch (err) {
       setError(err.response?.data?.message || "Unable to register concrete cube.");
@@ -98,13 +106,12 @@ function CubesPage() {
           <label>
             Cube number
             <input
-              onChange={(event) =>
-                setCubeForm({ ...cubeForm, cube_number: event.target.value })
-              }
-              placeholder="CUBE-001"
+              disabled
+              readOnly
               required
               value={cubeForm.cube_number}
             />
+            <small className="field-hint">Assigned automatically</small>
           </label>
 
           <label>
@@ -145,13 +152,7 @@ function CubesPage() {
             </label>
           </div>
 
-          <ImageCapture
-            file={cubeForm.cube_image}
-            label="Cube photo"
-            onChange={(cube_image) => setCubeForm({ ...cubeForm, cube_image })}
-          />
-
-          <button className="primary-button" disabled={loading} type="submit">
+          <button className="primary-button" disabled={loading || !cubesReady} type="submit">
             <Box size={16} />
             {loading ? "Registering..." : "Generate QR code"}
           </button>

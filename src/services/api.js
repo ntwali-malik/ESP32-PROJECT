@@ -27,6 +27,21 @@ export const getSensorReadings = async () => {
   return response.data;
 };
 
+export const sendRecordingEvent = async (event, reading = null) => {
+  const isStart = event === "start";
+  const response = await api.post("/api/sensors/recording", {
+    event,
+    status: isStart || event === "reading" ? "recording" : "stopped",
+    source: "dashboard",
+    recorded_at: new Date().toISOString(),
+    distance_cm: reading ? Number(reading.distance_cm) : null,
+    temperature_c: reading ? Number(reading.temperature_c) : null,
+    sensor_recorded_at: reading?.recorded_at || null,
+  });
+
+  return response.data;
+};
+
 export const getSensorReadingsLimit = async (
   limit = 50
 ) => {

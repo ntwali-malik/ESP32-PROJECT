@@ -37,3 +37,13 @@ export async function loadCompressionTests(qrToken) {
   const response = await getCompressionTests(qrToken);
   return sortCompressionTests(response.data || []);
 }
+
+export function nextCubeNumber(cubes = []) {
+  const highest = cubes.reduce((max, cube) => {
+    const match = String(cube.cube_number || "").match(/(\d+)\s*$/);
+    const value = match ? Number(match[1]) : 0;
+    return value > max ? value : max;
+  }, 0);
+
+  return `CUBE-${String(highest + 1).padStart(3, "0")}`;
+}
