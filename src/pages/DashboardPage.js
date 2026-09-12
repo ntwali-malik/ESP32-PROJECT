@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Activity, Database, Play, Radio, RefreshCw, Square } from "lucide-react";
 
@@ -29,7 +29,6 @@ function DashboardPage() {
   const [recordingError, setRecordingError] = useState("");
   const [recordingStartedAt, setRecordingStartedAt] = useState(null);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
-  const lastSentSensorTimestamp = useRef(null);
   const {
     latest,
     readings,
@@ -50,20 +49,6 @@ function DashboardPage() {
     return () => clearInterval(timer);
   }, [isRecording, recordingStartedAt]);
 
-  useEffect(() => {
-    if (!isRecording || !latest?.recorded_at) return undefined;
-    if (latest.recorded_at === lastSentSensorTimestamp.current) return undefined;
-
-    lastSentSensorTimestamp.current = latest.recorded_at;
-    sendRecordingEvent("reading", latest).catch((err) => {
-      setRecordingError(
-        err.response?.data?.message || "Unable to save the latest ultrasonic reading."
-      );
-    });
-
-    return undefined;
-  }, [isRecording, latest]);
-
   const toggleRecording = async () => {
     if (recordingBusy || (!isRecording && !recordingPermission)) return;
 
@@ -72,10 +57,7 @@ function DashboardPage() {
     try {
       setRecordingBusy(true);
       setRecordingError("");
-      if (event === "start") {
-        lastSentSensorTimestamp.current = latest?.recorded_at || null;
-      }
-      await sendRecordingEvent(event, latest);
+      await sendRecordingEvent(event);
 
       if (event === "start") {
         setRecordingStartedAt(Date.now());

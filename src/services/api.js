@@ -27,7 +27,7 @@ export const getSensorReadings = async () => {
   return response.data;
 };
 
-export const sendRecordingEvent = async (event, reading = null) => {
+export const sendRecordingEvent = async (event, reading = null, readings = []) => {
   const isStart = event === "start";
   const response = await api.post("/api/sensors/recording", {
     event,
@@ -37,6 +37,11 @@ export const sendRecordingEvent = async (event, reading = null) => {
     distance_cm: reading ? Number(reading.distance_cm) : null,
     temperature_c: reading ? Number(reading.temperature_c) : null,
     sensor_recorded_at: reading?.recorded_at || null,
+    readings: readings.map((item) => ({
+      distance_cm: Number(item.distance_cm),
+      temperature_c: Number(item.temperature_c),
+      sensor_recorded_at: item.recorded_at,
+    })),
   });
 
   return response.data;
