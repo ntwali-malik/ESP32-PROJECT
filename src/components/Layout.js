@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import {
-  Activity,
   Box,
   Clock,
   LayoutDashboard,
@@ -24,12 +23,10 @@ function Layout() {
     <div className="app-shell">
       <aside className={`sidebar ${menuOpen ? "open" : ""}`}>
         <div className="brand">
-          <div className="brand-icon">
-            <Activity size={22} />
-          </div>
+          <div className="brand-mark">QC</div>
           <div>
-            <h1>ESP32 Monitor</h1>
-            <p>Sensor lab</p>
+            <h1>Concrete QC</h1>
+            <p>Quality control studio</p>
           </div>
         </div>
 
@@ -49,11 +46,6 @@ function Layout() {
             </NavLink>
           ))}
         </nav>
-
-        <div className="sidebar-footer">
-          <span>Auto-refresh every 5s</span>
-          <span>Neon PostgreSQL</span>
-        </div>
       </aside>
 
       {menuOpen && (
@@ -76,8 +68,8 @@ function Layout() {
             {menuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
           <div className="topbar-brand">
-            <Activity size={16} />
-            <span>ESP32 Monitor</span>
+            <span className="brand-mark compact">QC</span>
+            <span>Concrete QC</span>
           </div>
         </header>
 

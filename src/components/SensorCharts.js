@@ -8,7 +8,7 @@ import {
   YAxis,
 } from "recharts";
 
-function SensorCharts({ readings, height = 300 }) {
+function SensorCharts({ readings, height = 300, showDistance = true }) {
   const chartData = [...readings].reverse().map((reading) => ({
     time: new Date(reading.recorded_at).toLocaleTimeString([], {
       hour: "2-digit",
@@ -52,7 +52,8 @@ function SensorCharts({ readings, height = 300 }) {
         </div>
       </article>
 
-      <article className="chart-card">
+      {showDistance && (
+        <article className="chart-card">
         <div className="chart-header">
           <div>
             <h3>Distance history</h3>
@@ -82,7 +83,8 @@ function SensorCharts({ readings, height = 300 }) {
             <div className="empty-chart">No distance data available</div>
           )}
         </div>
-      </article>
+        </article>
+      )}
     </div>
   );
 }

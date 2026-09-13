@@ -63,12 +63,12 @@ function HistoryPage() {
   };
 
   return (
-    <>
+    <div className="page-readings">
       <PageHeader
         eyebrow="Archive"
         icon={Clock}
-        title="Sensor readings"
-        description="Filter by date range, then page through the stored ESP32 samples."
+        title="Readings"
+        description="Filter the log by date, then walk through every stored temperature sample."
         actions={
           <button className="refresh-button" disabled={loading} onClick={reload} type="button">
             <RefreshCw className={loading ? "spin" : ""} size={16} />
@@ -83,6 +83,7 @@ function HistoryPage() {
         </AlertBanner>
       )}
 
+      <div className="archive-shell">
       <div className="toolbar readings-toolbar">
         <label className="search-field">
           From
@@ -106,7 +107,7 @@ function HistoryPage() {
           Search
           <input
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Temperature or distance"
+            placeholder="Temperature"
             type="search"
             value={query}
           />
@@ -134,7 +135,7 @@ function HistoryPage() {
         }
         readings={paged}
         startIndex={startIndex}
-        title="Reading history"
+        title="Temperature log"
       />
 
       <div className="pagination">
@@ -176,7 +177,8 @@ function HistoryPage() {
           </button>
         </div>
       </div>
-    </>
+      </div>
+    </div>
   );
 }
 

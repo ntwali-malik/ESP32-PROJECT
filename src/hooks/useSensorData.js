@@ -6,7 +6,7 @@ import {
   getSensorReadings,
 } from "../services/api";
 
-function useSensorData(intervalMs = 5000, enabled = true) {
+function useSensorData(intervalMs = 2000, enabled = true) {
   const [latest, setLatest] = useState(null);
   const [readings, setReadings] = useState([]);
   const [online, setOnline] = useState(false);

@@ -26,7 +26,6 @@ function SensorTable({
               <th>#</th>
               <th>Date & time</th>
               <th>Temperature</th>
-              <th>Distance</th>
             </tr>
           </thead>
           <tbody>
@@ -39,11 +38,6 @@ function SensorTable({
                 <td>
                   <span className="temperature-value">
                     {Number(reading.temperature_c).toFixed(2)}°C
-                  </span>
-                </td>
-                <td>
-                  <span className="distance-value">
-                    {Number(reading.distance_cm).toFixed(2)} cm
                   </span>
                 </td>
               </tr>

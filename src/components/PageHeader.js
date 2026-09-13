@@ -1,6 +1,6 @@
 function PageHeader({ eyebrow, icon: Icon, title, description, actions }) {
   return (
-    <section className="page-heading">
+    <section className="page-heading page-hero">
       <div>
         {eyebrow && (
           <div className="heading-label">

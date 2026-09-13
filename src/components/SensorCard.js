@@ -25,7 +25,7 @@ function SensorCard({ type, value, unit, updated, delta }) {
 
       <div className="sensor-card-footer">
         <div>
-          <span>Last dashboard update</span>
+          <span>Updated</span>
           <strong>{updated}</strong>
         </div>
         {hasDelta && (

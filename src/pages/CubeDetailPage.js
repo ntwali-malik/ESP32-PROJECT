@@ -35,6 +35,8 @@ function CubeDetailPage() {
     test_date: "",
     maximum_load_kn: "",
     compressive_strength_mpa: "",
+    confirmed_by: "",
+    approval_confirmed: false,
     cube_image: null,
   });
 
@@ -108,6 +110,8 @@ function CubeDetailPage() {
         test_date: "",
         maximum_load_kn: "",
         compressive_strength_mpa: "",
+        confirmed_by: "",
+        approval_confirmed: false,
         cube_image: null,
       });
       await refreshEvidence();
@@ -132,7 +136,7 @@ function CubeDetailPage() {
         eyebrow="Cube identity"
         icon={Box}
         title={cube?.cube_number || "Cube details"}
-        description="Review uploaded cube photos, then print the QR label or add another compression result."
+        description="Review the cube identity, open its photos, and attach the next compression result."
       />
 
       {loading && <p className="empty-cubes">Loading cube and uploaded images...</p>}
@@ -264,6 +268,7 @@ function CubeDetailPage() {
             )}
           </section>
 
+          {tests.length === 0 && (
           <form className="cube-form test-form evidence-upload" onSubmit={handleTestSubmit}>
             <div className="form-title">
               <Camera size={18} />
@@ -320,6 +325,34 @@ function CubeDetailPage() {
               />
             </label>
 
+            <label>
+              Confirmed by
+              <input
+                onChange={(event) =>
+                  setTestForm({ ...testForm, confirmed_by: event.target.value })
+                }
+                placeholder="Enter your full name"
+                required
+                type="text"
+                value={testForm.confirmed_by}
+              />
+            </label>
+
+            <label className="approval-check">
+              <input
+                checked={testForm.approval_confirmed}
+                onChange={(event) =>
+                  setTestForm({
+                    ...testForm,
+                    approval_confirmed: event.target.checked,
+                  })
+                }
+                required
+                type="checkbox"
+              />
+              <span>I confirm that these compression results are correct.</span>
+            </label>
+
             <ImageCapture
               file={testForm.cube_image}
               label="Compression result"
@@ -331,6 +364,14 @@ function CubeDetailPage() {
               {saving ? "Uploading..." : "Save test result"}
             </button>
           </form>
+          )}
+
+          {tests.length > 0 && (
+            <div className="cube-notice success-alert single-result-notice">
+              <CheckCircle2 size={18} />
+              This cube already has a compression result. Additional uploads are disabled.
+            </div>
+          )}
         </>
       )}
 

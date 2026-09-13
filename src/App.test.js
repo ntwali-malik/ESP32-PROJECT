@@ -12,5 +12,8 @@ test("renders the sensor dashboard", () => {
     </MemoryRouter>
   );
 
-  expect(screen.getByText(/sensor overview/i)).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "Overview" })).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Analytics" })).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Readings" })).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Cube Registry" })).toBeInTheDocument();
 });

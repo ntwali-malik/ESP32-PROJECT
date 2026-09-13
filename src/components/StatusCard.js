@@ -27,8 +27,8 @@ function StatusCard({ online, lastUpdate }) {
         <div className="service">
           <Database size={18} />
           <div>
-            <span>Database</span>
-            <strong>{online ? "Connected" : "Disconnected"}</strong>
+            <span>Sensor feed</span>
+            <strong>{online ? "Receiving" : "Disconnected"}</strong>
           </div>
         </div>
       </div>

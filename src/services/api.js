@@ -90,6 +90,8 @@ export const uploadCompressionTest = async (qrToken, test) => {
   formData.append("test_date", test.test_date);
   formData.append("maximum_load_kn", test.maximum_load_kn);
   formData.append("compressive_strength_mpa", test.compressive_strength_mpa);
+  formData.append("confirmed_by", test.confirmed_by);
+  formData.append("approval_confirmed", String(test.approval_confirmed));
   formData.append("cube_image", test.cube_image);
 
   const response = await api.post(

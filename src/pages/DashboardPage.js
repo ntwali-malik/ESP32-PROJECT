@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Activity, Database, Play, Radio, RefreshCw, Square } from "lucide-react";
+import { Activity, Play, Radio, RefreshCw, Square } from "lucide-react";
 
 import AlertBanner from "../components/AlertBanner";
 import PageHeader from "../components/PageHeader";
@@ -37,7 +37,7 @@ function DashboardPage() {
     error,
     lastDashboardUpdate,
     reload,
-  } = useSensorData(5000, isRecording);
+  } = useSensorData(2000, isRecording);
 
   useEffect(() => {
     if (!isRecording) return undefined;
@@ -92,18 +92,17 @@ function DashboardPage() {
     : "No reading";
 
   return (
-    <>
+    <div className="page-overview">
       <PageHeader
-        eyebrow="Live monitoring"
+        eyebrow="Live floor"
         icon={Activity}
-        title="Sensor overview"
-        description="Live temperature and distance from the ESP32, with a snapshot of recent samples."
+        title="Overview"
+        description="Watch the pour floor in real time: temperature, distance, and capture control."
         actions={
           <>
-            <div className="database-indicator">
-              <Database size={16} />
-              <span>Neon PostgreSQL</span>
-              <span className={`mini-status ${online ? "online" : "offline"}`} />
+            <div className={`live-chip ${online ? "online" : "offline"}`}>
+              <span className="live-pulse" />
+              {online ? "System live" : "System offline"}
             </div>
             <button className="refresh-button" disabled={loading} onClick={reload} type="button">
               <RefreshCw className={loading ? "spin" : ""} size={16} />
@@ -117,10 +116,6 @@ function DashboardPage() {
         <AlertBanner title="Connection problem" type="error">
           {error}
         </AlertBanner>
-      )}
-
-      {!error && online && (
-        <AlertBanner type="success">Connected to the ESP32 sensor API</AlertBanner>
       )}
 
       {recordingError && (
@@ -205,7 +200,11 @@ function DashboardPage() {
             Open analytics
           </Link>
         </div>
-        <SensorCharts height={240} readings={readings.slice(0, 20)} />
+        <SensorCharts
+          height={240}
+          readings={readings.slice(0, 20)}
+          showDistance={false}
+        />
       </section>
 
       <section className="section">
@@ -224,7 +223,7 @@ function DashboardPage() {
           title="Recent history"
         />
       </section>
-    </>
+    </div>
   );
 }
 

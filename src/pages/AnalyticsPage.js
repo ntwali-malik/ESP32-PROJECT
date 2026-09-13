@@ -28,12 +28,12 @@ function AnalyticsPage() {
   const distance = summarize(readings, "distance_cm");
 
   return (
-    <>
+    <div className="page-analytics">
       <PageHeader
         eyebrow="Trends"
         icon={LineChart}
-        title="Sensor analytics"
-        description="Min, max, and average values across the stored samples, with full history charts."
+        title="Analytics"
+        description="See how the batch is moving: range, average, and the latest temperature curve."
         actions={
           <button className="refresh-button" disabled={loading} onClick={reload} type="button">
             <RefreshCw className={loading ? "spin" : ""} size={16} />
@@ -48,37 +48,64 @@ function AnalyticsPage() {
         </AlertBanner>
       )}
 
-      <section className="stats-grid">
-        <article className="stat-card">
-          <p>Temperature min</p>
-          <strong>{temperature.min}<span>°C</span></strong>
-        </article>
-        <article className="stat-card">
-          <p>Temperature avg</p>
-          <strong>{temperature.avg}<span>°C</span></strong>
-        </article>
-        <article className="stat-card">
-          <p>Temperature max</p>
-          <strong>{temperature.max}<span>°C</span></strong>
-        </article>
-        <article className="stat-card">
-          <p>Distance min</p>
-          <strong>{distance.min}<span>cm</span></strong>
-        </article>
-        <article className="stat-card">
-          <p>Distance avg</p>
-          <strong>{distance.avg}<span>cm</span></strong>
-        </article>
-        <article className="stat-card">
-          <p>Distance max</p>
-          <strong>{distance.max}<span>cm</span></strong>
-        </article>
-      </section>
+      <div className="metric-board">
+        <section className="metric-group">
+          <div className="metric-group-title">
+            <span>Temperature</span>
+            <small>{readings.length} samples · °C</small>
+          </div>
+          <div className="stats-grid">
+            <article className="stat-card stat-temp">
+              <p>Minimum</p>
+              <strong>{temperature.min}<span>°C</span></strong>
+            </article>
+            <article className="stat-card stat-temp">
+              <p>Average</p>
+              <strong>{temperature.avg}<span>°C</span></strong>
+            </article>
+            <article className="stat-card stat-temp">
+              <p>Maximum</p>
+              <strong>{temperature.max}<span>°C</span></strong>
+            </article>
+          </div>
+        </section>
+
+        <section className="metric-group">
+          <div className="metric-group-title">
+            <span>Distance</span>
+            <small>{readings.length} samples · cm</small>
+          </div>
+          <div className="stats-grid">
+            <article className="stat-card stat-dist">
+              <p>Minimum</p>
+              <strong>{distance.min}<span>cm</span></strong>
+            </article>
+            <article className="stat-card stat-dist">
+              <p>Average</p>
+              <strong>{distance.avg}<span>cm</span></strong>
+            </article>
+            <article className="stat-card stat-dist">
+              <p>Maximum</p>
+              <strong>{distance.max}<span>cm</span></strong>
+            </article>
+          </div>
+        </section>
+      </div>
 
       <section className="section">
-        <SensorCharts height={320} readings={readings.slice(0, 50)} />
+        <div className="section-heading">
+          <div>
+            <h2>Temperature curve</h2>
+            <p>Latest fifty samples from the sensor log.</p>
+          </div>
+        </div>
+        <SensorCharts
+          height={360}
+          readings={readings.slice(0, 50)}
+          showDistance={false}
+        />
       </section>
-    </>
+    </div>
   );
 }
 

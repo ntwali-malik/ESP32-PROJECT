@@ -88,12 +88,12 @@ function CubesPage() {
   };
 
   return (
-    <>
+    <div className="page-registry">
       <PageHeader
         eyebrow="Traceability"
         icon={Box}
-        title="Concrete cube registry"
-        description="Register a cube, generate a permanent QR identity, then attach compression evidence after testing."
+        title="Cube Registry"
+        description="Give each cube a permanent identity, then keep its test record in the catalog."
       />
 
       <div className="cube-workspace">
@@ -166,7 +166,7 @@ function CubesPage() {
           </div>
 
           {cubes.length === 0 ? (
-            <p className="empty-cubes">No cubes registered yet.</p>
+            <p className="empty-cubes">No cubes in the catalog yet. Register the first one to begin.</p>
           ) : (
             <div className="cube-grid">
               {cubes.map((cube) => (
@@ -184,13 +184,15 @@ function CubesPage() {
                         <ImageIcon size={22} />
                       </span>
                     )}
+                    <span className={`status-pill ${cube.status}`}>{cube.status}</span>
                   </div>
-                  <span className={`status-pill ${cube.status}`}>{cube.status}</span>
-                  <strong>{cube.cube_number}</strong>
-                  <small>
-                    {cube.concrete_grade} · {cube.test_age_days} days
-                    {cube.test_count ? ` · ${cube.test_count} photo${cube.test_count === 1 ? "" : "s"}` : ""}
-                  </small>
+                  <div className="cube-card-body">
+                    <strong>{cube.cube_number}</strong>
+                    <small>
+                      {cube.concrete_grade} · {cube.test_age_days} days
+                      {cube.test_count ? ` · ${cube.test_count} photo${cube.test_count === 1 ? "" : "s"}` : ""}
+                    </small>
+                  </div>
                 </button>
               ))}
             </div>
@@ -210,7 +212,7 @@ function CubesPage() {
           {error}
         </div>
       )}
-    </>
+    </div>
   );
 }
 

@@ -1,6 +1,6 @@
 {
-  "short_name": "ESP32 Monitor",
-  "name": "ESP32 Sensor Lab",
+  "short_name": "Concrete QC",
+  "name": "Concrete QC",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +20,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#15232d",
-  "background_color": "#f3f1ec"
+  "theme_color": "#101920",
+  "background_color": "#efeae2"
 }

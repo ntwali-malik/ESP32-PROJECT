@@ -8,9 +8,9 @@ html {
 
 body {
   margin: 0;
-  font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
-  background: #f3f1ec;
-  color: #15232d;
+  font-family: Outfit, "Segoe UI", sans-serif;
+  background: #ece7de;
+  color: #121c22;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
