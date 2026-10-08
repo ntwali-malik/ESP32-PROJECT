@@ -88,10 +88,15 @@ export const getCompressionTests = async (qrToken) => {
 export const uploadCompressionTest = async (qrToken, test) => {
   const formData = new FormData();
   formData.append("test_date", test.test_date);
+  formData.append(
+    "tested_at",
+    new Date(`${test.test_date}T${test.test_time}`).toISOString()
+  );
   formData.append("maximum_load_kn", test.maximum_load_kn);
   formData.append("compressive_strength_mpa", test.compressive_strength_mpa);
   formData.append("confirmed_by", test.confirmed_by);
   formData.append("approval_confirmed", String(test.approval_confirmed));
+  formData.append("test_stage", test.test_stage || "final");
   formData.append("cube_image", test.cube_image);
 
   const response = await api.post(
@@ -99,6 +104,34 @@ export const uploadCompressionTest = async (qrToken, test) => {
     formData,
     { headers: { "Content-Type": "multipart/form-data" } }
   );
+  return response.data;
+};
+
+export const getBatches = async () => {
+  const response = await api.get("/api/batches");
+  return response.data;
+};
+
+export const createBatch = async (batch) => {
+  const response = await api.post("/api/batches", batch);
+  return response.data;
+};
+
+export const getBatch = async (batchId) => {
+  const response = await api.get(`/api/batches/${batchId}`);
+  return response.data;
+};
+
+export const recordBatchSlump = async (batchId, measuredSlumpMm, slumpClass) => {
+  const response = await api.post(`/api/batches/${batchId}/slump`, {
+    measured_slump_mm: measuredSlumpMm,
+    slump_class: slumpClass,
+  });
+  return response.data;
+};
+
+export const setCuringSession = async (batchId, action) => {
+  const response = await api.post(`/api/batches/${batchId}/curing`, { action });
   return response.data;
 };
 

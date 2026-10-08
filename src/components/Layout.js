@@ -1,51 +1,94 @@
-import { useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
-import {
-  Box,
-  Clock,
-  LayoutDashboard,
-  LineChart,
-  Menu,
-  X,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import { Beaker, Box, Menu, X } from "lucide-react";
+
+import { useActiveBatch } from "../context/ActiveBatchContext";
+import { checkHealth } from "../services/api";
+import { SLUMP_STATUS_LABELS } from "../utils/mix";
 
 const navItems = [
-  { to: "/", label: "Overview", icon: LayoutDashboard, end: true },
-  { to: "/analytics", label: "Analytics", icon: LineChart },
-  { to: "/history", label: "Readings", icon: Clock },
+  { to: "/batches", label: "Batches", icon: Beaker },
   { to: "/cubes", label: "Cube Registry", icon: Box },
 ];
 
+const HEALTH_POLL_MS = 30000;
+
+function useApiOnline() {
+  const [online, setOnline] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    const check = () => Promise.resolve()
+      .then(() => checkHealth())
+      .then((response) => { if (!cancelled) setOnline(response?.success === true); })
+      .catch(() => { if (!cancelled) setOnline(false); });
+    check();
+    const timer = window.setInterval(check, HEALTH_POLL_MS);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, []);
+  return online;
+}
+
 function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { batchId, batch, clearBatch } = useActiveBatch();
+  const { pathname } = useLocation();
+  const online = useApiOnline();
+
+  useEffect(() => {
+    setMenuOpen(false);
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   return (
     <div className="app-shell">
       <aside className={`sidebar ${menuOpen ? "open" : ""}`}>
-        <div className="brand">
+        <Link className="brand" to="/batches">
           <div className="brand-mark">QC</div>
           <div>
             <h1>Concrete QC</h1>
             <p>Quality control studio</p>
           </div>
-        </div>
+        </Link>
 
-        <nav className="sidebar-nav">
-          {navItems.map(({ to, label, icon: Icon, end }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              className={({ isActive }) =>
-                `nav-link ${isActive ? "active" : ""}`
-              }
-              onClick={() => setMenuOpen(false)}
-            >
-              <Icon size={18} />
-              <span>{label}</span>
-            </NavLink>
-          ))}
+        <nav aria-label="Main" className="sidebar-nav">
+          <div className="nav-section">
+            <p className="nav-section-label">Workspace</p>
+            {navItems.map(({ to, label, icon: Icon }) => (
+              <NavLink key={to} to={to} className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+                <Icon size={18} />
+                <span>{label}</span>
+              </NavLink>
+            ))}
+          </div>
+
+          {batchId && (
+            <div className="nav-section">
+              <p className="nav-section-label">Current batch</p>
+              <div className="active-batch-card">
+                <Link className="active-batch-name" to={`/batches/${batchId}`}>{batch?.batch_number || "Loading batch..."}</Link>
+                {batch && (
+                  <small>
+                    {batch.concrete_grade} · <span className={`slump-dot ${batch.slump_status}`} />{SLUMP_STATUS_LABELS[batch.slump_status] || batch.slump_status}
+                  </small>
+                )}
+                <div className="active-batch-links">
+                  <Link to={`/batches/${batchId}/curing`}>Curing & sensors</Link>
+                  <button className="active-batch-close" onClick={clearBatch} type="button">Close</button>
+                </div>
+              </div>
+            </div>
+          )}
         </nav>
+
+        <div className="sidebar-footer">
+          <span className={`footer-live ${online === false ? "offline" : ""}`}>
+            <span className={online ? "live-pulse" : "status-dot offline"} />
+            {online === null ? "Checking sensor API..." : online ? "Sensor API online" : "Sensor API offline"}
+          </span>
+        </div>
       </aside>
 
       {menuOpen && (

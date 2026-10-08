@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import {
   AlertCircle,
-  ArrowLeft,
   Box,
   Camera,
   CheckCircle2,
@@ -12,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 
+import Breadcrumbs from "../components/Breadcrumbs";
 import ImageCapture from "../components/ImageCapture";
 import PageHeader from "../components/PageHeader";
 import { getCube, uploadCompressionTest } from "../services/api";
@@ -22,8 +22,16 @@ import {
   loadCompressionTests,
 } from "../utils/cubes";
 
+function currentTestDateTime() {
+  const now = new Date();
+  const localNow = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+  const value = localNow.toISOString();
+  return { test_date: value.slice(0, 10), test_time: value.slice(11, 16) };
+}
+
 function CubeDetailPage() {
   const { qrToken } = useParams();
+  const fromBatch = useLocation().state?.fromBatch;
   const [cube, setCube] = useState(null);
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,14 +39,15 @@ function CubeDetailPage() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [lightbox, setLightbox] = useState(null);
-  const [testForm, setTestForm] = useState({
-    test_date: "",
+  const [testForm, setTestForm] = useState(() => ({
+    test_stage: "final",
+    ...currentTestDateTime(),
     maximum_load_kn: "",
     compressive_strength_mpa: "",
     confirmed_by: "",
     approval_confirmed: false,
     cube_image: null,
-  });
+  }));
 
   const refreshEvidence = async () => {
     const [cubeResponse, loadedTests] = await Promise.all([
@@ -107,7 +116,8 @@ function CubeDetailPage() {
       await uploadCompressionTest(cube.qr_token, testForm);
       setMessage("Compression result and cube image uploaded successfully.");
       setTestForm({
-        test_date: "",
+        test_stage: "final",
+        ...currentTestDateTime(),
         maximum_load_kn: "",
         compressive_strength_mpa: "",
         confirmed_by: "",
@@ -127,10 +137,18 @@ function CubeDetailPage() {
 
   return (
     <>
-      <Link className="back-link" to="/cubes">
-        <ArrowLeft size={16} />
-        Back to registry
-      </Link>
+      <Breadcrumbs
+        items={fromBatch
+          ? [
+              { label: "Batches", to: "/batches" },
+              { label: fromBatch.label, to: `/batches/${fromBatch.id}/specimens` },
+              { label: cube?.cube_number || "Specimen" },
+            ]
+          : [
+              { label: "Cube Registry", to: "/cubes" },
+              { label: cube?.cube_number || "Cube" },
+            ]}
+      />
 
       <PageHeader
         eyebrow="Cube identity"
@@ -254,12 +272,16 @@ function CubeDetailPage() {
                       )}
                       <div className="evidence-meta">
                         <strong>{formatTestDate(test.test_date)}</strong>
+                        <small>{test.test_stage === "early" ? "Early-age calibration" : "Final test"}</small>
                         <small>
                           {formatMeasure(test.maximum_load_kn, "kN")}
                         </small>
                         <small>
                           {formatMeasure(test.compressive_strength_mpa, "MPa")}
                         </small>
+                        {test.maturity_index != null && (
+                          <small>{formatMeasure(test.maturity_index, "°C·h maturity")}</small>
+                        )}
                       </div>
                     </button>
                   );
@@ -268,7 +290,6 @@ function CubeDetailPage() {
             )}
           </section>
 
-          {tests.length === 0 && (
           <form className="cube-form test-form evidence-upload" onSubmit={handleTestSubmit}>
             <div className="form-title">
               <Camera size={18} />
@@ -291,22 +312,47 @@ function CubeDetailPage() {
                 />
               </label>
               <label>
-                Maximum load (kN)
+                Test time
                 <input
-                  min="0"
                   onChange={(event) =>
-                    setTestForm({
-                      ...testForm,
-                      maximum_load_kn: event.target.value,
-                    })
+                    setTestForm({ ...testForm, test_time: event.target.value })
                   }
                   required
-                  step="0.001"
-                  type="number"
-                  value={testForm.maximum_load_kn}
+                  type="time"
+                  value={testForm.test_time}
                 />
               </label>
             </div>
+
+            <label>
+              Maximum load (kN)
+              <input
+                min="0"
+                onChange={(event) =>
+                  setTestForm({
+                    ...testForm,
+                    maximum_load_kn: event.target.value,
+                  })
+                }
+                required
+                step="0.001"
+                type="number"
+                value={testForm.maximum_load_kn}
+              />
+            </label>
+
+            <label>
+              Test stage
+              <select
+                onChange={(event) =>
+                  setTestForm({ ...testForm, test_stage: event.target.value })
+                }
+                value={testForm.test_stage}
+              >
+                <option value="early">Early-age calibration</option>
+                <option value="final">Final client result</option>
+              </select>
+            </label>
 
             <label>
               Compressive strength (MPa)
@@ -361,17 +407,9 @@ function CubeDetailPage() {
 
             <button className="primary-button" disabled={saving} type="submit">
               <Upload size={16} />
-              {saving ? "Uploading..." : "Save test result"}
+              {saving ? "Uploading..." : `Save ${testForm.test_stage} test`}
             </button>
           </form>
-          )}
-
-          {tests.length > 0 && (
-            <div className="cube-notice success-alert single-result-notice">
-              <CheckCircle2 size={18} />
-              This cube already has a compression result. Additional uploads are disabled.
-            </div>
-          )}
         </>
       )}
 
